@@ -14,8 +14,9 @@ const App = () => {
   const [token, setToken] = useState('');
   const [searchResult, setSearchResult] = useState({selectedItem: '', listOfResultsFromAPI: []});
   const [recommendations, setRecs] = useState({selectedRec: '', listOfRecsFromAPI: []});
-  const [selectedSeeds, setSeeds] = useState({listOfSelectedSeeds: []});
+  const [selectedSeeds, setSeeds] = useState({listOfSelectedSeeds: [{name:''}, {name:''}, {name:''}, {name:''}, {name:''}]});
   const [songInformation, setSongInfo] = useState(null);
+  const [numSeeds, setNumSeeds] = useState(0);
 
   useEffect(() => {
 
@@ -50,28 +51,31 @@ const App = () => {
   }, [clientCreds.ClientId, clientCreds.ClientSecret]);
 
   const selectItem = val => {
-    if (val !== 'Select' && selectedSeeds.listOfSelectedSeeds.length < 5) {
+
+    if (val !== 'Select' && numSeeds < 5) {
       setSearchResult({
         selectedItem: val,
         listOfResultsFromAPI: searchResult.listOfResultsFromAPI
       });
       let tempList = selectedSeeds.listOfSelectedSeeds;
-      tempList.push({name:val});
-      setSeeds({
+      tempList[numSeeds] = {name:val};
+      setSeeds({ 
         listOfSelectedSeeds: tempList
-      })
+      });
+      setNumSeeds(numSeeds + 1);
       console.log(selectedSeeds.listOfSelectedSeeds);
-    } else if (selectedSeeds.listOfSelectedSeeds.length >= 5) {
+    } else if (numSeeds >= 5) {
       console.log('Overflow');
     }
   }
 
   const submit = () => {
-    if (selectedSeeds.listOfSelectedSeeds.length > 0) {
+    console.log('size when hit: ' + numSeeds);
+    if (numSeeds> 0) {
       let url = 'https://api.spotify.com/v1/recommendations';
       let gens = [];
       selectedSeeds.listOfSelectedSeeds.forEach(function(curr) {
-        gens.push(curr.name);
+        if(curr.name !== '') gens.push(curr.name);
       });
       axios(url + '?limit=10&market=US&seed_genres=' + gens, {
         method: 'GET',
@@ -101,10 +105,21 @@ const App = () => {
     console.log('clicked value: ' + val.id);
     function isSong(item) {
       console.log('item name: ' + item.name);
-      if (val.id !== item.name) return true;
+      if (val.id !== item.name || val.id === '') return true;
       return false;
     }
-    let newList = selectedSeeds.listOfSelectedSeeds.filter(isSong);
+    // selectedSeeds.listOfSelectedSeeds.forEach(function(curr) {
+    //   if(curr.name === val.id) setNumSeeds(numSeeds - 1);
+    // });
+    const newList = selectedSeeds.listOfSelectedSeeds.filter(isSong);
+    console.log('size: ' + newList.length);
+    console.log('overall: ' + numSeeds);
+    console.log(newList);
+    for (let i = newList.length; i < 5; i++) {
+      newList.push({name:''});
+      setNumSeeds(numSeeds - 1);
+    }
+    console.log('new size: ' + numSeeds);
     setSeeds({
       listOfSelectedSeeds: newList
     });
@@ -123,12 +138,13 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className="container">
+      <label className="title">Spotify Recommendations</label>
       <Dropdown options={searchResult.listOfResultsFromAPI} selected={searchResult.selectedItem} changed={selectItem}/>
-      <Clicklist items={selectedSeeds.listOfSelectedSeeds} clicked={removeGenre}/>
-      <button onClick={submit}>Submit</button>
+      <Clicklist items={selectedSeeds.listOfSelectedSeeds} clicked={removeGenre} label={'Selected Genres (Up to 5): '}/>
+      <button onClick={submit} className="btn btn-back col-sm-1">Submit</button>
       <div>
-        <Clicklist items={recommendations.listOfRecsFromAPI} clicked={selectSong}/>
+        <Clicklist items={recommendations.listOfRecsFromAPI} clicked={selectSong} label={'Results: '}/>
         {songInformation && <Song {...songInformation}/>}
       </div>
     </div>
