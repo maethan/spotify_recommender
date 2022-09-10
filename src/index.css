@@ -35,6 +35,11 @@ img.track {
   border: 1px solid #8a8a8a;
 }
 
+.list-group-item:hover {
+  background-color: #F3D3BD!important;
+  border: 1px solid #8a8a8a;
+}
+
 .list-group-head {
   background-color: #5E5E5E!important;
   border: 1px solid #8a8a8a;

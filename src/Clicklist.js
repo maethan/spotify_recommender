@@ -4,8 +4,6 @@ const Clicklist = props => {
 
     const clicked = e => {
         e.preventDefault();
-        console.log('props: ' + props.items.name);
-        console.log('clicky: ' + e.target.id);
         props.clicked(e.target);
     }
     return (

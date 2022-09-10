@@ -8,11 +8,11 @@ const Dropdown = (props) => {
 
     return (
         <div className="col-sm-5 px-0">
-            <label className="list-group-head py-1 text-center rounded"> Genres: </label>
+            <label className="list-group-head py-1 px-2 text-center rounded"> Genres: </label>
             <select value={props.selected} onChange={selected} className="form-control form-control-sm">
                 <option key={0}>Select</option>
                 {props.options.map((item, idx) => <option key={idx + 1} value={item.value}>{item.name}</option>)}
-            </select>
+            </select> 
         </div>
     );
 }

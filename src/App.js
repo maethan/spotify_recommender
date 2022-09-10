@@ -9,8 +9,6 @@ const App = () => {
 
   const clientCreds = Client();
 
-  console.log('test');
-
   const [token, setToken] = useState('');
   const [searchResult, setSearchResult] = useState({selectedItem: '', listOfResultsFromAPI: []});
   const [recommendations, setRecs] = useState({selectedRec: '', listOfRecsFromAPI: []});
@@ -36,19 +34,17 @@ const App = () => {
         headers: { 'Authorization' : 'Bearer ' + tokenResponse.data.access_token}
       })
       .then (genRes => {        
-        console.log('new call' + genRes.data.genres);
         const generatedTracks = [];
         for (let i = 0; i < genRes.data.genres.length; i++) {
           generatedTracks.push({value: genRes.data.genres[i], name: genRes.data.genres[i]});
         }
-        console.log(generatedTracks);
         setSearchResult({
           selectedItem: searchResult.selectedItem,
           listOfResultsFromAPI: generatedTracks
         })
       });
     });
-  }, [clientCreds.ClientId, clientCreds.ClientSecret]);
+  }, [searchResult.selectedItem, clientCreds.ClientId, clientCreds.ClientSecret]);
 
   const selectItem = val => {
 
@@ -63,14 +59,13 @@ const App = () => {
         listOfSelectedSeeds: tempList
       });
       setNumSeeds(numSeeds + 1);
-      console.log(selectedSeeds.listOfSelectedSeeds);
     } else if (numSeeds >= 5) {
       console.log('Overflow');
     }
   }
 
   const submit = () => {
-    console.log('size when hit: ' + numSeeds);
+    setSongInfo(null);
     if (numSeeds> 0) {
       let url = 'https://api.spotify.com/v1/recommendations';
       let gens = [];
@@ -89,8 +84,6 @@ const App = () => {
           selectedRec: recommendations.selectedRec,
           listOfRecsFromAPI: recsResponse.data.tracks
         })
-        console.log('hm' + recommendations.listOfRecsFromAPI);
-        console.log(recsResponse.data.tracks);
       });
     } else {
       console.log('empty');
@@ -102,38 +95,29 @@ const App = () => {
   }
 
   const removeGenre = val => {
-    console.log('clicked value: ' + val.id);
     function isSong(item) {
-      console.log('item name: ' + item.name);
       if (val.id !== item.name || val.id === '') return true;
       return false;
     }
-    // selectedSeeds.listOfSelectedSeeds.forEach(function(curr) {
-    //   if(curr.name === val.id) setNumSeeds(numSeeds - 1);
-    // });
+
     const newList = selectedSeeds.listOfSelectedSeeds.filter(isSong);
-    console.log('size: ' + newList.length);
-    console.log('overall: ' + numSeeds);
-    console.log(newList);
+    let count = 0;
     for (let i = newList.length; i < 5; i++) {
       newList.push({name:''});
-      setNumSeeds(numSeeds - 1);
+      count += 1;
     }
-    console.log('new size: ' + numSeeds);
+    setNumSeeds(numSeeds - count);
     setSeeds({
       listOfSelectedSeeds: newList
     });
   }
 
   const selectSong = val => {
-    console.log('selected song: ' + val);
     let selectedSong = recommendations.listOfRecsFromAPI.filter(t => t.name === val.id);
-    console.log('this ' + selectedSong[0].name);
     pullUpSongPopUp(selectedSong[0]);
   }
 
   const pullUpSongPopUp = val => {
-    console.log('selected track: ' + val.name);
     setSongInfo(val);
   }
 

@@ -10,11 +10,11 @@ const Song = ({album, artists, name}) => {
             </div>
             <div>
                 <label htmlFor={name}/>
-                {name}
+                Song Title: {name}
             </div>
             <div>
                 <label htmlFor={artists[0].name}/>
-                {artists[0].name}
+                Artist: {artists[0].name}
             </div>
         </div>
 
